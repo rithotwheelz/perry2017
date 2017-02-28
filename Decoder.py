@@ -5,8 +5,17 @@ bus messages are contained in this string. Each CAN bus message is 36 bytes long
 Program updates paramter values for the BMS from these CAN bus messages and 
 also prints any detected faults to the command line.
 
+Revision: 0.0
+Last revision: 1/28/17
+
 """
-from Definitions import *
+from defTest import *
+
+bmsData = [0, 0, 0, 0, 0, 0, 0]
+bmsFaults = []
+contData = [0, 0, 0, 0, 0, 0, 0, 0]
+contFaults = []
+
 
 def decoder(message):
     """
@@ -58,12 +67,12 @@ def decoder(message):
         # the hex values in decimal
         if good[0:8] == BMSDataID:
 
-            BMSParameters["Pack Current"] = int(good[8:12], 16)
-            BMSParameters["Pack Voltage"] = int(good[12:16], 16)
-            BMSParameters["Pack SOC"] = int(good[16:18], 16)
-            BMSParameters["High Temp"] = int(good[18:20], 16)
-            BMSParameters["Low Temp"] = int(good[20:22], 16)
-            BMSParameters["Average Temp"] = int(good[22:24], 16)
+            bmsData[0] = int(good[8:12], 16)
+            bmsData[1] = int(good[12:16], 16)
+            bmsData[2] = int(good[16:18], 16)
+            bmsData[3] = int(good[18:20], 16)
+            bmsData[5] = int(good[20:22], 16)
+            bmsData[4] = int(good[22:24], 16)
 
         #Else if the CAN ID matches the BMSFaultID, then check the 
         # corresponding data bytes to find faults. Each byte in the data 
@@ -83,7 +92,14 @@ def decoder(message):
             #Loop through each byte and check for active faults. Print them
             while i < 8:
                 if binary0[i] == "1":
-                    print(BMSFaultList0[i] + " Fault")
+                    # print(BMSFaultList0[i] + " Fault")
+                    bmsFaults.append(BMSFaultList0[i])
+                    # pass
+                else:
+                    try:
+                        bmsFaults.remove(BMSFaultList0[i])
+                    except ValueError:
+                        pass
                 #Increment index variable
                 i += 1
 
@@ -92,7 +108,14 @@ def decoder(message):
 
             while i < 8:
                 if binary1[i] == "1":
-                    print(BMSFaultList1[i] + " Fault")
+                    # print(BMSFaultList1[i] + " Fault")
+                    bmsFaults.append(BMSFaultList1[i])
+                    # pass
+               else:
+                    try:
+                        bmsFaults.remove(BMSFaultList1[i])
+                    except ValueError:
+                        pass
                 #Increment index variable
                 i += 1
 
@@ -101,7 +124,14 @@ def decoder(message):
 
             while i < 5:
                 if binary2[i] == "1":
-                    print(BMSFaultList2[i] + " Fault")
+                    # print(BMSFaultList2[i] + " Fault")
+                    bmsFaults.append(BMSFaultList2[i])
+                    # pass
+                else:
+                    try:
+                        bmsFaults.remove(BMSFaultList2[i])
+                    except ValueError:
+                        pass
                 #Increment index variable
                 i += 1
 
@@ -110,25 +140,34 @@ def decoder(message):
             # Battery levels stored in BMS data parameter dictionary. 
             # High: 3, Medium: 2, Low: 1
             if binary2[5] == "1":
-                BMSParameters["Battery Level"] = 3
-            if binary2[6] == "1":
-                BMSParameters["Battery Level"] = 2
-            if binary2[7] == "1":
-                BMSParameters["Battery Level"] = 1
+                bmsData[6] = 3
+            elif binary2[6] == "1":
+                bmsData[6] = 2
+            elif binary2[7] == "1":
+                bmsData[6] = 1
         
         elif good[0:8] == controllerData0:
-
-            controllerParams["Capacitor Voltage"] = int(good[8:12], 16)
-            controllerParams["Motor RPM"] = int(good[12:16], 16)
-            controllerParams["Motor Temp"] = int(good[16:20], 16)
-            controllerParams["Controller Current"] = int(good[20:24], 16)
+            
+            con0 = good[10:12] + good[8:10]
+            print(con0)
+            con1 = good[14:16] + good[12:14]
+            con2 = good[18:20] + good[16:18]
+            con3 = good[22:24] + good[20:22]
+            contData[0] = int(con0, 16)
+            contData[1] = int(con1, 16)
+            contData[2] = int(con2, 16)
+            contData[3] = int(con3, 16)
+            #contData[0] = int(good[8:12], 16)
+            #contData[1] = int(good[12:16], 16)
+            #contData[2] = int(good[16:20], 16)
+            #contData[3] = int(good[20:24], 16)
 
         elif good[0:8] == controllerData1:
 
-            controllerParams["Controller Temp"] = int(good[8:12], 16)
-            controllerParams["Speed"] = int(good[12:16], 16)
-            controllerParams["Acceleration"] = int(good[16:20], 16)
-            controllerParams["KSI Voltage"] = int(good[20:24], 16)
+            contData[4] = int(good[8:12], 16)
+            contData[5] = int(good[12:16], 16)
+            contData[6] = int(good[16:20], 16)
+            contData[7] = int(good[20:24], 16)
 
         elif good[0:8] == controllerFaults:
 
@@ -136,7 +175,7 @@ def decoder(message):
             binary1 = hextobin(good[10:12])
             binary2 = hextobin(good[12:14])
             binary3 = hextobin(good[14:16])
-            binary4 = hextobin(good[16:18])
+            binary4 = hextobin(good[16:18]) 
             binary5 = hextobin(good[18:20])
             binary6 = hextobin(good[20:22])
             binary7 = hextobin(good[22:24])
@@ -147,7 +186,13 @@ def decoder(message):
             #Loop through each byte and check for active faults. Print them
             while i < 8:
                 if binary0[i] == "1":
-                    print(controllerFaults0[i] + " Fault")
+                    # print(controllerFaults0[i] + " Fault")
+                    contFaults.append(controllerFaults0[i])
+                else:
+                    try:
+                        contFaults.remove(controllerFaults0[i])
+                    except ValueError:
+                        pass
                 #Increment index variable
                 i += 1
 
@@ -156,25 +201,13 @@ def decoder(message):
 
             while i < 8:
                 if binary1[i] == "1":
-                    print(controllerFaults1[i] + " Fault")
-                #Increment index variable
-                i += 1
-
-            #Reset index variable
-            i = 0
-
-            while i < 8:
-                if binary2[i] == "1":
-                    print(controllerFaults2[i] + " Fault")
-                #Increment index variable
-                i += 1
-
-                #Reset index variable
-            i = 0
-
-            while i < 8:
-                if binary1[i] == "1":
-                    print(controllerFaults3[i] + " Fault")
+                    # print(controllerFaults1[i] + " Fault")
+                    contFaults.append(controllerFaults1[i])
+                else:
+                    try:
+                        contFaults.remove(controllerFaults1[i])
+                    except ValueError:
+                        pass
                 #Increment index variable
                 i += 1
 
@@ -183,7 +216,13 @@ def decoder(message):
 
             while i < 8:
                 if binary2[i] == "1":
-                    print(controllerFaults4[i] + " Fault")
+                    # print(controllerFaults2[i] + " Fault")
+                    contFaults.append(controllerFaults2[i])
+                else:
+                    try:
+                        contFaults.remove(controllerFaults2[i])
+                    except ValueError:
+                        pass
                 #Increment index variable
                 i += 1
 
@@ -192,7 +231,13 @@ def decoder(message):
 
             while i < 8:
                 if binary1[i] == "1":
-                    print(controllerFaults5[i] + " Fault")
+                    # print(controllerFaults3[i] + " Fault")
+                    contFaults.append(controllerFaults3[i])
+                else:
+                    try:
+                        contFaults.remove(controllerFaults3[i])
+                    except ValueError:
+                        pass
                 #Increment index variable
                 i += 1
 
@@ -201,7 +246,13 @@ def decoder(message):
 
             while i < 8:
                 if binary2[i] == "1":
-                    print(controllerFaults6[i] + " Fault")
+                    # print(controllerFaults4[i] + " Fault")
+                    contFaults.append(controllerFaults4[i])
+                else:
+                    try:
+                        contFaults.remove(controllerFaults4[i])
+                    except ValueError:
+                        pass
                 #Increment index variable
                 i += 1
 
@@ -210,7 +261,43 @@ def decoder(message):
 
             while i < 8:
                 if binary1[i] == "1":
-                    print(controllerFaults7[i] + " Fault")
+                    # print(controllerFaults5[i] + " Fault")
+                    contFaults.append(controllerFaults5[i])
+                else:
+                    try:
+                        contFaults.remove(controllerFaults5[i])
+                    except ValueError:
+                        pass
+                #Increment index variable
+                i += 1
+
+            #Reset index variable
+            i = 0
+
+            while i < 8:
+                if binary2[i] == "1":
+                    # print(controllerFaults6[i] + " Fault")
+                    contFaults.append(controllerFaults6[i])
+                else:
+                    try:
+                        contFaults.remove(controllerFaults6[i])
+                    except ValueError:
+                        pass
+                #Increment index variable
+                i += 1
+
+                #Reset index variable
+            i = 0
+
+            while i < 8:
+                if binary1[i] == "1":
+                    # print(controllerFaults7[i] + " Fault")
+                    contFaults.append(controllerFaults7[i])
+                else:
+                    try:
+                        contFaults.remove(controllerFaults7[i])
+                    except ValueError:
+                        pass
                 #Increment index variable
                 i += 1
 
@@ -239,11 +326,6 @@ def hextobin(hexval):
         binval = '0' + binval
     return binval
 
-
-def main(data):
-    # data = input("Enter value: ")
-    decoder(data)
-    for a, b in BMSParameters.items():
-        print(a, b)
-
-# main()
+def updateAll(message):
+    decoder(message)
+    return [bmsData, bmsFaults, contData, contFaults]
