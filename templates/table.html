@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Perry Dashboard</title>
+		<link rel="stylesheet" type="text/css" href="..\static\table.css">
+	</head>
+
+	<body>
+
+		<script src="..\static\jquery-3.1.1.min.js"></script>
+		<script type="text/javascript">
+			var nominalHigh;
+			nominalHigh = 500;
+		    $( document ).ready(function update_values(){
+		        $.getJSON("/_thing",
+		            function(data) {
+		                $("#capVolt").text(data.capVolt+" V");
+		                if (data.capVolt > nominalHigh) {
+		                	$("#capVolt").css("background-color", "red");
+		                } else {
+		                	$("#capVolt").css("background-color", "blue");
+		                }
+		                $("#RPM").text(data.RPM+" rpm");
+		                $("#motorTemp").text(data.motorTemp+" °F");
+		                $("#contCurr").text(data.contCurr+" A");
+		                $("#cTemp").text(data.cTemp+" °F");
+		                $("#speed").text(data.speed+" mph");
+		                $("#accel").text(data.accel+" m/s2");
+		                $("#ksi").text(data.ksi+" V");
+
+		                $("#packVolt").text(data.packVolt+" V");
+		                $("#packCurr").text(data.packCurr+" A");
+		                $("#soc").text(data.soc+" %");
+		                $("#hTemp").text(data.hTemp+" °F");
+		                $("#aTemp").text(data.aTemp+" °F");
+		                $("#lTemp").text(data.lTemp+" °F");
+		                $("#bLev").text(data.bLev);
+		            });
+		        setTimeout(arguments.callee, 2000);
+		    });
+		</script>
+
+		<table>
+			<tr>
+				<th colspan="2">Controller Parameters</th>
+				<th colspan="2">BMS Parameters</th>
+			</tr>
+			<tr>
+				<td>Capacitor Voltage</td>
+				<td id="capVolt" class="data">0 V</td>
+				<td>Pack Voltage</td>
+				<td id="packVolt" class="data">0 V</td>
+				<td id="what" rowspan="8">0</td>
+			</tr>
+			<tr>
+				<td>Motor RPM</td>
+				<td id="RPM" class="data">0 rpm</td>
+				<td>Pack Current</td>
+				<td id="packCurr" class="data">0 A</td>
+			</tr>
+			<tr>
+				<td>Motor Temperature</td>
+				<td id="motorTemp" class="data">0 °F</td>
+				<td>Pack SoC</td>
+				<td id="soc" class="data">0 %</td>
+			</tr>
+			<tr>
+				<td>Current</td>
+				<td id="contCurr" class="data">0 A</td>
+				<td>High Temp</td>
+				<td id="hTemp" class="data">0 °F</td>
+			</tr>
+			<tr>
+				<td>Temperature</td>
+				<td id="cTemp" class="data">0 V</td>
+				<td>Average Temp</td>
+				<td id="aTemp" class="data">0 °F</td>
+			</tr>
+			<tr>
+				<td>Speed</td>
+				<td id="speed" class="data">0 mph</td>
+				<td>Low Temp</td>
+				<td id="lTemp" class="data">0 °F</td>
+			</tr>
+			<tr>
+				<td>Acceleration</td>
+				<td id="accel" class="data">0 m/s^2</td>
+				<td>Battery Level</td>
+				<td id="bLev" class="data">Off</td>
+			</tr>
+			<tr>
+				<td>KSI Voltage</td>
+				<td id="ksi" class="data">0 V</td>
+				<td colspan="2">
+					<a href="http://rithotwheelz.com/">
+						<img src="..\static\flame.png" width="205" height="110">
+					</a>
+				</td>
+<!-- 				<td>kW Usage</td>
+				<td class="data">0 kW</td> -->
+			</tr>
+		</table>
+
+		<p id="status" style="color: red">System Offline.</p>
+	</body>
+</html>
