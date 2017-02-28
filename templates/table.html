@@ -35,6 +35,21 @@
 		                $("#aTemp").text(data.aTemp+" °F");
 		                $("#lTemp").text(data.lTemp+" °F");
 		                $("#bLev").text(data.bLev);
+		                var clength = data.contFaults.length;
+		                if (clength > 0) {
+		                	$("#cfaults").text("");
+		                	for (var i = 0; i < clength; i++) {
+		                		$("cfaults").append("<li>" + data.contFaults[i] + "</li>");
+		                	};
+		                }
+
+		                var blength = data.bmsFaults.length;
+		                if (blength > 0) {
+		                	$("#bfaults").text("");
+		                	for (var i = 0; i < blength; i++) {
+		                		$("bfaults").append("<li>" + data.bmsFaults[i] + "</li>");
+		                	};
+		                }
 		            });
 		        setTimeout(arguments.callee, 2000);
 		    });
@@ -42,15 +57,18 @@
 
 		<table>
 			<tr>
+				<th>Ernie Active Faults</th>
 				<th colspan="2">Controller Parameters</th>
 				<th colspan="2">BMS Parameters</th>
+				<th>BMS Active Faults</th>
 			</tr>
 			<tr>
+				<td id="cfaults" rowspan="8">No active faults on the controller detected.</td>
 				<td>Capacitor Voltage</td>
 				<td id="capVolt" class="data">0 V</td>
 				<td>Pack Voltage</td>
 				<td id="packVolt" class="data">0 V</td>
-				<td id="what" rowspan="8">0</td>
+				<td id="bfaults" rowspan="8">No active faults on the BMS detected.</td>
 			</tr>
 			<tr>
 				<td>Motor RPM</td>
