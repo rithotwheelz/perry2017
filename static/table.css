@@ -1,0 +1,23 @@
+th, td {
+	border: 1px solid pink;
+	padding: 10px;
+}
+
+table {
+	border-collapse: collapse;
+	width: 50%;
+	margin-right: auto;
+	margin-left: auto;
+}
+
+td.data {
+	padding: 20px;
+}
+
+td {
+	text-align: center;
+}
+
+#status {
+	text-align: center;
+}
