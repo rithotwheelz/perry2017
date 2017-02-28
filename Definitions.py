@@ -16,13 +16,6 @@ controllerData0 = "00000033"
 controllerData1 = "00000034"
 controllerFaults = "00000035"
 
-#Dictionary holding BMS data parameters
-BMSParameters = {"Pack Current": 0, "Pack Voltage": 0, "Pack SOC": 0, "High Temp": 0, 
-				 "Low Temp": 0, "Average Temp": 0, "Battery Level": 0}
-
-#Dictionary containing controller data parameters
-controllerParams = {"Capacitor Voltage": 0, "MotorRPM": 0, "Motor Temp": 0, "Controller Current": 0, "Controller Temp": 0, "Speed": 0, "Acceleration": 0, "KSI Voltage": 0}
-
 #Array containing list of BMS faults for first byte. Corresponds to Custom Flag #0 in the BMS CAN bus settings
 BMSFaultList0 = ["Internal Communication", "Internal Conversion", "Weak Cell", "Low Cell Voltage", "Open Wiring", "Current Sensor", "Pack Voltage Sensor", "Weak Pack"]
 
