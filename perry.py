@@ -19,8 +19,11 @@ BMSParameters = {"Pack Current": 0, "Pack Voltage": 0, "Pack SOC": 0, "High Temp
 
 controllerParams = {"Capacitor Voltage": 0, "MotorRPM": 0, "Motor Temp": 0, "Controller Current": 0, "Controller Temp": 0, "Speed": 0, "Acceleration": 0, "KSI Voltage": 0}
 
+test = {"status": 0}
+
 contFaults = []
 bmsFaults = []
+systemOn = 0
 
 app = Flask(__name__)
 
@@ -45,22 +48,25 @@ def listen(args, threadEnder):
         #wait to accept a connection - blocking call
     try:
         conn, addr = s.accept()
-        print("listener ready. starting server...")
-        server.start()
         print ('Connected with ' + addr[0] + ':' + str(addr[1]))
         print (str(conn) + "\n" + str(addr))
-        while (not threadEnder.is_set()):
+        # while (not threadEnder.is_set()):
+        while True:
+            # test["status"] = 0
             mess = conn.recvfrom(1024)
-            # print ("Message:", repr(mess))
-            raw_message = codecs.encode(mess[0], 'hex')
-            clean_message = raw_message.decode("utf8")
-            # print ("Message:", repr(clean_message))
-            # bmsUpdate(Decoder.BMS(clean_message))
-            # contUpdate(Decoder.Controller(clean_message))
-            allThem = Decoder.updateAll(clean_message)
-            bmsUpdate(allThem[0])
-            contUpdate(allThem[2])
-            faultsUpdate(allThem[1], allThem[3])
+            if not mess:
+                testUpdate(0)
+            else:
+                # test["status"] = 1
+                # print ("Message:", repr(mess))
+                raw_message = codecs.encode(mess[0], 'hex')
+                clean_message = raw_message.decode("utf8")
+                # print ("Message:", repr(clean_message))
+                allThem = Decoder.updateAll(clean_message)
+                bmsUpdate(allThem[0])
+                contUpdate(allThem[2])
+                faultsUpdate(allThem[1], allThem[3])
+                testUpdate(allThem[4])
             
     except socket.timeout as msg:
         print ('Socket has timed out. No messages received')
@@ -68,6 +74,9 @@ def listen(args, threadEnder):
         sys.exit()
     print ('listener finished')
     s.close()
+
+def testUpdate(data):
+    test["status"] = data
 
 def bmsCurr():
     return BMSParameters["Pack Current"]
@@ -114,6 +123,10 @@ def contAcc():
 def contKsi():
     return controllerParams["KSI Voltage"]
 
+def testF():
+    print (test["status"])
+    return test["status"]
+
 def bmsUpdate(data):
     # current, voltage, soc, hTemp, aTemp, lTemp, lvl
     BMSParameters["Pack Current"] = data[0]
@@ -127,24 +140,30 @@ def bmsUpdate(data):
 def contUpdate(data):
     controllerParams["Capacitor Voltage"] = data[0]/64
     controllerParams["MotorRPM"] = data[1]
-    controllerParams["Motor Temp"] = (data[2]/100)*(9/5)+32
-    controllerParams["Controller Current"] = data[3]/1000
-    controllerParams["Controller Temp"] = (data[4]/100)*(9/5)+32
+    controllerParams["Motor Temp"] = (data[2]/10)*(9/5)+32
+    controllerParams["Controller Current"] = data[3]/10
+    controllerParams["Controller Temp"] = (data[4]/10)*(9/5)+32
     controllerParams["Speed"] = data[5]/100
     controllerParams["Acceleration"] = data[6]/1000
     controllerParams["KSI Voltage"] = data[7]/100
 
 def faultsUpdate(bms, cont):
+    bmsFaults = []
     bmsFaults = bms
+    print (bmsFaults)
+    contFaults = []
     contFaults = cont
 
 def run(args, threadEnder):
-    if (not threadEnder.is_set()):
-        print("starting server run")
+    print("starting server run")
+    while True:
         app.run()
-    else:
-        print("exiting server run")
-        sys.exit()
+    # if (not threadEnder.is_set()):
+    #     print("starting server run")
+    #     app.run()
+    # else:
+    #     print("exiting server run")
+    #     sys.exit()
 
 threadEnder = threading.Event()
 listener = threading.Thread(target=listen, args=(1, threadEnder))
@@ -157,10 +176,10 @@ try:
     print("starting listener...")
     listener.start()
 
-    # print("listener ready. starting server...")
-    # server.start()
-    while True:
-        pass
+    print("listener ready. starting server...")
+    server.start()
+    # while True:
+    #     pass
 
 except KeyboardInterrupt:
     print ("Closing program...")
@@ -190,4 +209,6 @@ def thing():
     lTemp = bmsLTemp()
     bLev = bmsLvl()
 
-    return jsonify(capVolt=capVolt, RPM=RPM, motorTemp=motorTemp, contCurr=contCurr, cTemp=cTemp, speed=speed, accel=accel, ksi=ksi, packVolt=packVolt, packCurr=packCurr, soc=soc, hTemp=hTemp, aTemp=aTemp, lTemp=lTemp, bLev=bLev, contFaults=contFaults, bmsFaults=bmsFaults)
+    systemOn = testF()
+
+    return jsonify(capVolt=capVolt, RPM=RPM, motorTemp=motorTemp, contCurr=contCurr, cTemp=cTemp, speed=speed, accel=accel, ksi=ksi, packVolt=packVolt, packCurr=packCurr, soc=soc, hTemp=hTemp, aTemp=aTemp, lTemp=lTemp, bLev=bLev, contFaults=contFaults, bmsFaults=bmsFaults, systemOn=systemOn)
