@@ -35,6 +35,13 @@
 		                $("#aTemp").text(data.aTemp+" °F");
 		                $("#lTemp").text(data.lTemp+" °F");
 		                $("#bLev").text(data.bLev);
+
+		                if(data.systemOn == 0){
+		                	$("#systemOn").text("System Off.");
+		                }else{
+		                	$("#systemOn").text("System On.");
+		                }
+
 		                var clength = data.contFaults.length;
 		                if (clength > 0) {
 		                	$("#cfaults").text("");
@@ -119,6 +126,6 @@
 			</tr>
 		</table>
 
-		<p id="status" style="color: red">System Offline.</p>
+		<p id="systemOn" style="color: red">System Offline.</p>
 	</body>
 </html>
