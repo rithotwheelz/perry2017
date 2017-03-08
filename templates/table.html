@@ -9,7 +9,10 @@
 
 		<script src="..\static\jquery-3.1.1.min.js"></script>
 		<script type="text/javascript">
+			 
 			var nominalHigh;
+			var oldStatus = 2;
+			var newStatus = 1;
 			nominalHigh = 500;
 		    $( document ).ready(function update_values(){
 		        $.getJSON("/_thing",
@@ -36,25 +39,38 @@
 		                $("#lTemp").text(data.lTemp+" °F");
 		                $("#bLev").text(data.bLev);
 
-		                if(data.systemOn == 0){
-		                	$("#systemOn").text("System Off.");
+		          
+		                newStatus = data.systemOn;
+
+		                console.log("Old: " + oldStatus + " New: " + newStatus)
+
+		                if (newStatus == oldStatus){
+		                	$("#systemOn").text("System Offline..")
 		                }else{
-		                	$("#systemOn").text("System On.");
+		                	$("#systemOn").text("System Online..")
 		                }
+		                oldStatus = newStatus;
 
 		                var clength = data.contFaults.length;
+		                // console.log(data.contFaults)
 		                if (clength > 0) {
 		                	$("#cfaults").text("");
 		                	for (var i = 0; i < clength; i++) {
-		                		$("cfaults").append("<li>" + data.contFaults[i] + "</li>");
+		                		if (data.contFaults[i] != 0){
+		                			$("#cfaults").append("<li>" + data.contFaults[i] + "</li>");
+		                		}
 		                	};
 		                }
 
 		                var blength = data.bmsFaults.length;
+
+		                // console.log(data.bmsFaults + " " + blength);
 		                if (blength > 0) {
 		                	$("#bfaults").text("");
 		                	for (var i = 0; i < blength; i++) {
-		                		$("bfaults").append("<li>" + data.bmsFaults[i] + "</li>");
+		                		if (data.bmsFaults[i] != 0){
+		                			$("#bfaults").append("<li>" + data.bmsFaults[i] + "</li>");
+		                		}
 		                	};
 		                }
 		            });
@@ -64,18 +80,18 @@
 
 		<table>
 			<tr>
-				<th>Ernie Active Faults</th>
+				<th colspan="2">Ernie Active Faults</th>
 				<th colspan="2">Controller Parameters</th>
 				<th colspan="2">BMS Parameters</th>
-				<th>BMS Active Faults</th>
+				<th colspan="3">BMS Active Faults</th>
 			</tr>
 			<tr>
-				<td id="cfaults" rowspan="8">No active faults on the controller detected.</td>
+				<td id="cfaults" rowspan="8" colspan="2">No active faults on the controller detected.</td>
 				<td>Capacitor Voltage</td>
 				<td id="capVolt" class="data">0 V</td>
 				<td>Pack Voltage</td>
 				<td id="packVolt" class="data">0 V</td>
-				<td id="bfaults" rowspan="8">No active faults on the BMS detected.</td>
+				<td id="bfaults" rowspan="8" colspan="3">No active faults on the BMS detected.</td>
 			</tr>
 			<tr>
 				<td>Motor RPM</td>
