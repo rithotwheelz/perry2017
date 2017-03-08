@@ -3,12 +3,12 @@
 from flask import Flask
 from flask import render_template
 from flask import jsonify
-# import num
+
 import socket
 import sys
 import codecs
 import threading
-import Decoder
+import testDecode as Decoder
 
 ##DEFINITIONS
 HOST = '192.168.1.25'   # Symbolic name, meaning all available interfaces
@@ -21,22 +21,20 @@ controllerParams = {"Capacitor Voltage": 0, "MotorRPM": 0, "Motor Temp": 0, "Con
 
 test = {"status": 0}
 
-contFaults = []
-bmsFaults = []
-systemOn = 0
+faults = {"bmsFaults" : "", "contFaults" : ""}
 
 app = Flask(__name__)
 
 def listen(args, threadEnder):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    print ('Socket Test created')
+    print ('Socket Reader created')
 
     #Bind socket to local host and port
     try:
         s.bind((HOST,PORT))
         print ('Socket bind complete')
         s.settimeout(50)
-        #Stamfsdfjdsoirt listening on socket
+        #listening on socket
         s.listen(1)
         print ('Socket now listening')
         #now keep talking with the client
@@ -44,39 +42,37 @@ def listen(args, threadEnder):
         print ('Bind failed. Error Code : ' + str(msg) + ' Message ')
         sys.exit()
 
-    #while 1:
+    while 1:
         #wait to accept a connection - blocking call
-    try:
-        conn, addr = s.accept()
-        print ('Connected with ' + addr[0] + ':' + str(addr[1]))
-        print (str(conn) + "\n" + str(addr))
-        # while (not threadEnder.is_set()):
-        while True:
-            # test["status"] = 0
-            mess = conn.recvfrom(1024)
-            if not mess:
-                testUpdate(0)
-            else:
-                # test["status"] = 1
-                # print ("Message:", repr(mess))
-                raw_message = codecs.encode(mess[0], 'hex')
-                clean_message = raw_message.decode("utf8")
-                # print ("Message:", repr(clean_message))
-                allThem = Decoder.updateAll(clean_message)
-                bmsUpdate(allThem[0])
-                contUpdate(allThem[2])
-                faultsUpdate(allThem[1], allThem[3])
-                testUpdate(allThem[4])
-            
-    except socket.timeout as msg:
-        print ('Socket has timed out. No messages received')
-        listener.join()
-        sys.exit()
-    print ('listener finished')
-    s.close()
-
-def testUpdate(data):
-    test["status"] = data
+        try:
+            conn, addr = s.accept()
+            print ('Connected with ' + addr[0] + ':' + str(addr[1]))
+            print (str(conn) + "\n" + str(addr))
+            # while (not threadEnder.is_set()):
+            while True:
+                # try:
+                mess = conn.recvfrom(1024)
+                if (mess == ""):
+                    print("Not connected.")
+                else:
+                    # print ("Message:", repr(mess))
+                    raw_message = codecs.encode(mess[0], 'hex')
+                    clean_message = raw_message.decode("utf8")
+                    # print ("Message:", repr(clean_message))
+                    allThem = Decoder.updateAll(clean_message)
+                    bmsUpdate(allThem[0])
+                    contUpdate(allThem[2])
+                    faultsUpdate(allThem[1], allThem[3])
+                    toggle()
+                # except Exception as e:
+                #     print(str(e))
+                
+        except socket.timeout as msg:
+            print ('Socket has timed out. No messages received')
+            # listener.join()
+            # sys.exit()
+        print ('listener finished')
+        s.close()
 
 def bmsCurr():
     return BMSParameters["Pack Current"]
@@ -123,8 +119,15 @@ def contAcc():
 def contKsi():
     return controllerParams["KSI Voltage"]
 
-def testF():
-    print (test["status"])
+def toggle():
+    temp = test["status"]
+
+    if temp > 8:
+        test["status"] = 1
+    else:
+        test["status"] = test["status"] + 1
+
+def getToggle():
     return test["status"]
 
 def bmsUpdate(data):
@@ -138,9 +141,13 @@ def bmsUpdate(data):
     BMSParameters["Battery Level"] = data[6]
 
 def contUpdate(data):
-    controllerParams["Capacitor Voltage"] = data[0]/64
+    controllerParams["Capacitor Voltage"] = float("%.3f"%(data[0]/64))
     controllerParams["MotorRPM"] = data[1]
-    controllerParams["Motor Temp"] = (data[2]/10)*(9/5)+32
+    temp = float("%.3f"%((data[2]/10)*(9/5)+32))
+    if temp > 10000:
+        controllerParams["Motor Temp"] = "Off"
+    else:
+        controllerParams["Motor Temp"] = temp
     controllerParams["Controller Current"] = data[3]/10
     controllerParams["Controller Temp"] = (data[4]/10)*(9/5)+32
     controllerParams["Speed"] = data[5]/100
@@ -148,11 +155,14 @@ def contUpdate(data):
     controllerParams["KSI Voltage"] = data[7]/100
 
 def faultsUpdate(bms, cont):
-    bmsFaults = []
-    bmsFaults = bms
-    print (bmsFaults)
-    contFaults = []
-    contFaults = cont
+    faults["bmsFaults"] = bms
+    faults["contFaults"] = cont
+
+def getcFaults():
+    return faults["contFaults"]
+
+def getbFaults():
+    return faults["bmsFaults"]
 
 def run(args, threadEnder):
     print("starting server run")
@@ -183,12 +193,12 @@ try:
 
 except KeyboardInterrupt:
     print ("Closing program...")
-    threadEnder.set()
+    server.join()
     print("Bye.")
 
 @app.route('/')
 def hello():
-    return render_template("table.html")
+    return render_template("tableFaults.html")
 
 @app.route('/_thing', methods= ['GET'])
 def thing():
@@ -209,6 +219,8 @@ def thing():
     lTemp = bmsLTemp()
     bLev = bmsLvl()
 
-    systemOn = testF()
+    systemOn = getToggle()
+    bmsFaults = getbFaults()
+    contFaults = getcFaults()
 
     return jsonify(capVolt=capVolt, RPM=RPM, motorTemp=motorTemp, contCurr=contCurr, cTemp=cTemp, speed=speed, accel=accel, ksi=ksi, packVolt=packVolt, packCurr=packCurr, soc=soc, hTemp=hTemp, aTemp=aTemp, lTemp=lTemp, bLev=bLev, contFaults=contFaults, bmsFaults=bmsFaults, systemOn=systemOn)
