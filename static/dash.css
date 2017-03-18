@@ -1,0 +1,199 @@
+.container {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  overflow: hidden;
+}
+
+#label {
+  line-height: 0px;
+}*/
+
+.jqx-layout-group-auto-hide-content-vertical
+{
+    width: 100px;
+}
+
+body {
+  background-color: #3d3c3b;
+}
+
+#speed {
+  position: relative;
+}
+
+#RPM {
+  position: relative;
+  left: 275px;
+  top: -275px;
+}
+
+#accel {
+  position: relative;
+  bottom: 1325px;
+  left: 475px;
+}
+
+#contCurr {
+  position: relative;
+  left: 1100px;
+  bottom: 300px;
+}
+
+#packCurr {
+  position: relative;
+  left: 1000px;
+  bottom: 600px;
+}
+
+#kwh {
+  position: relative;
+  left: 1200px;
+  bottom: 1500px;
+}
+
+#capVolt {
+  position: relative;
+  left: 950px;
+  bottom: 2100px;
+}
+
+#ksi {
+  position: relative;
+  left: 950px;
+  bottom: 2225px;
+}
+
+#packVolt {
+  position: relative;
+  left: 950px;
+  bottom: 2355px;
+}
+
+#bargauge {
+  position: relative;
+  background-color: #3d3c3b;
+  bottom: 1190px;
+  left: 525px;
+  z-index: -1;
+}
+
+#soc {
+  position: relative;
+  left: 850px;
+  bottom: 2390px;
+}
+
+#fault0 {
+  position: relative;
+  bottom: 2600px;
+  left: 50px;
+  background-color: black;
+}
+
+#fault1 {
+  position: relative;
+  bottom: 2600px;
+  left: 50px;
+}
+
+#fault2 {
+  position: relative;
+  bottom: 2600px;
+  left: 50px;
+}
+
+#fault3 {
+  position: relative;
+  bottom: 2600px;
+  left: 50px;
+}
+
+#fault4 {
+  position: relative;
+  bottom: 2600px;
+  left: 50px;
+}
+
+#fault5 {
+  position: relative;
+  bottom: 2600px;
+  left: 50px;
+}
+
+#fault6 {
+  position: relative;
+  bottom: 2600px;
+  left: 50px;
+}
+
+.jqx-gauge-label {
+    font-size: 15px;
+}
+
+.jqx-fill-state-normal {
+  background: #3d3c3b;
+}
+
+#cCurr {
+  position: relative;
+  height: 50px;
+  width: 100px;
+  bottom: 2600px;
+  left: 1150px;
+  text-align: center;
+}
+
+#bCurr {
+  position: relative;
+  height: 50px;
+  width: 100px;
+  bottom: 2600px;
+  left: 1040px;
+  text-align: center;
+}
+
+#kw {
+  position: relative;
+  height: 50px;
+  width: 100px;
+  bottom: 2600px;
+  left: 1245px;
+  text-align: center;
+}
+
+#pVolt {
+  position: relative;
+  height: 50px;
+  width: 100px;
+  bottom: 2980px;
+  left: 1235px;
+  text-align: center;
+}
+
+#cpV {
+  position: relative;
+  height: 50px;
+  width: 100px;
+  bottom: 3185px;
+  left: 1235px;
+  text-align: center;
+}
+
+#kV {
+  position: relative;
+  height: 50px;
+  width: 100px;
+  bottom: 3175px;
+  left: 1235px;
+  text-align: center;
+}
+
+#sc {
+  position: relative;
+  height: 50px;
+  width: 100px;
+  bottom: 2815px;
+  left: 925px;
+  text-align: center;
+}
