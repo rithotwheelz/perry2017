@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<HTML>
+	<link rel="stylesheet" type="text/css" href="test.css">
+	<link rel="stylesheet" href=".\jqwidgets-ver4.5.0\jqwidgets\styles\jqx.base.css" type="text/css" />
+
+
+	<BODY>
+	<script src="..\Documents\perry\static\jquery-3.1.1.min.js"></script>
+	<script type="text/javascript" src=".\jqwidgets-ver4.5.0\scripts\demos.js"></script>
+    <script type="text/javascript" src=".\jqwidgets-ver4.5.0\jqwidgets\jqxcore.js"></script>
+    <script type="text/javascript" src=".\jqwidgets-ver4.5.0\jqwidgets\jqxdata.js"></script>
+    <script type="text/javascript" src=".\jqwidgets-ver4.5.0\jqwidgets\jqxdraw.js"></script>
+    <script type="text/javascript" src=".\jqwidgets-ver4.5.0\jqwidgets\jqxgauge.js"></script>
+    <script type="text/javascript" src=".\jqwidgets-ver4.5.0\jqwidgets\jqxbuttons.js"></script>
+    <script type="text/javascript" src=".\jqwidgets-ver4.5.0\jqwidgets\jqxcheckbox.js"></script>
+    <script type="text/javascript" src=".\jqwidgets-ver4.5.0\jqwidgets\jqxradiobutton.js"></script>
+    <script type="text/javascript" src=".\jqwidgets-ver4.5.0\jqwidgets\jqxexpander.js"></script>
+    <script type="text/javascript" src=".\jqwidgets-ver4.5.0\jqwidgets\jqxbargauge.js"></script>
+		
+		<script type="text/javascript">
+			$(document).ready(function () {
+		        $('#speed').jqxGauge({
+		            ranges: [{ startValue: 0, endValue: 40, style: { fill: '#4cb848', stroke: '#4cb848' }, startDistance: 0, endDistance: 0, endWidth: 13, startWidth: 13},
+		                { startValue: 40, endValue: 60, style: { fill: '#fad00b', stroke: '#fad00b' }, startDistance: 0, endDistance: 0, endWidth: 13, startWidth: 13},
+		                { startValue: 60, endValue: 80, style: { fill: '#e53d37', stroke: '#e53d37' }, startDistance: 0, endDistance: 0, endWidth: 13, startWidth: 13}],
+		                cap: { size: '5%', style: { fill: '#2e79bb', stroke: '#2e79bb'} },
+		                border: { style: { fill: '#f957d9', stroke: '#7b8384', 'stroke-width': 1 } },
+		                ticksMinor: { interval: 2.5, size: '5%' },
+		                ticksMajor: { interval: 10, size: '10%' },       
+		                labels: { position: 'outside', interval: 10 },
+		                pointer: { style: { fill: '#2e79bb' }, width: 5 },
+		                animationDuration: 500,
+		                caption: { offset: [0, -25], value: 'MPH', position: 'bottom' },
+		                min: 0,
+		                max: 80,
+		                style: { fill: '#b2adb1', stroke: '#d608ad' },
+		                height: 275
+		        });
+
+		        $('#RPM').jqxGauge({
+	            	ranges: [{ startValue: 0, endValue: 5, style: { fill: '#4cb848', stroke: '#4cb848' }, startDistance: 0, endDistance: 0, endWidth: 13, startWidth: 13},
+	                { startValue: 5, endValue: 7, style: { fill: '#fad00b', stroke: '#fad00b' }, startDistance: 0, endDistance: 0, endWidth: 13, startWidth: 13},
+	                { startValue: 7, endValue: 8, style: { fill: '#e53d37', stroke: '#e53d37' }, startDistance: 0, endDistance: 0, endWidth: 13, startWidth: 13}],
+	                cap: { size: '5%', style: { fill: '#2e79bb', stroke: '#2e79bb'} },
+	                border: { style: { fill: '#f957d9', stroke: '#7b8384', 'stroke-width': 0.5 } },
+	                ticksMinor: { interval: 0.25, size: '5%' },
+	                ticksMajor: { interval: 1, size: '10%' },       
+	                labels: { position: 'outside', interval: 1 },
+	                pointer: { style: { fill: '#2e79bb' }, width: 5 },
+	                animationDuration: 500,
+	                caption: { offset: [0, -25], value: 'RPM', position: 'bottom' },
+	                min: 0,
+	                max: 8,
+	                style: { fill: '#b2adb1', stroke: '#d608ad' },
+	                height: 275
+	        	});
+
+	        	$('#accel').jqxGauge({
+	            	ranges: [{ startValue: 0, endValue: 5, style: { fill: '#4cb848', stroke: '#4cb848' }, startDistance: 0, endDistance: 0, endWidth: 13, startWidth: 13},
+	                { startValue: 5, endValue: 7, style: { fill: '#fad00b', stroke: '#fad00b' }, startDistance: 0, endDistance: 0, endWidth: 13, startWidth: 13},
+	                { startValue: 7, endValue: 8, style: { fill: '#e53d37', stroke: '#e53d37' }, startDistance: 0, endDistance: 0, endWidth: 13, startWidth: 13}],
+	                cap: { size: '5%', style: { fill: '#2e79bb', stroke: '#2e79bb'} },
+	                border: { style: { fill: '#f957d9', stroke: '#7b8384', 'stroke-width': 0.5 } },
+	                ticksMinor: { interval: 0.25, size: '5%' },
+	                ticksMajor: { interval: 1, size: '10%' },       
+	                labels: { position: 'outside', interval: 1 },
+	                pointer: { style: { fill: '#2e79bb' }, width: 5 },
+	                animationDuration: 500,
+	                caption: { offset: [0, -25], value: 'm/s2', position: 'bottom' },
+	                min: 0,
+	                max: 8,
+	                style: { fill: '#b2adb1', stroke: '#d608ad' },
+	                height: 200
+	        	});
+
+	        	var majorTicks = { size: '10%', interval: 20 },
+                minorTicks = { size: '5%', interval: 5, style: { 'stroke-width': 1, stroke: '#ffffff'} }
+
+	            $('#contCurr').jqxLinearGauge({
+	                orientation: 'vertical',
+	                ticksMajor: majorTicks,
+	                ticksMinor: minorTicks,
+	                ticksPosition: 'near',
+	                max: 200,
+	                min: 0,
+	                width: 200,
+	                pointer: { size: '6%' },
+	                colorScheme: 'scheme03',
+	                background: { visible: false },
+	                labels: 	{ position: 'near', interval: 20, offset: 10}
+	               
+	            });
+
+	            $('#packCurr').jqxLinearGauge({
+	                orientation: 'vertical',
+	                ticksMajor: majorTicks,
+	                ticksMinor: minorTicks,
+	                ticksPosition: 'near',
+	                max: 200,
+	                min: 0,
+	                width: 200,
+	                pointer: { size: '6%' },
+	                colorScheme: 'scheme02',
+	                background: { visible: false },
+	                labels: 	{ position: 'near', interval: 20, offset: 10}
+	               
+	            });
+
+	            $('#kwh').jqxLinearGauge({
+	                orientation: 'vertical',
+	                ticksMajor: majorTicks,
+	                ticksMinor: minorTicks,
+	                ticksPosition: 'near',
+	                max: 200,
+	                min: 0,
+	                width: 200,
+	                pointer: { size: '6%' },
+	                colorScheme: 'scheme02',
+	                background: { visible: false },
+	                labels: 	{ position: 'near', interval: 20, offset: 10}
+	               
+	            });
+
+	            $('#soc').jqxLinearGauge({
+	                orientation: 'vertical',
+	                ticksMajor: majorTicks,
+	                ticksMinor: minorTicks,
+	                ticksPosition: 'near',
+	                max: 100,
+	                min: 0,
+	                width: 275,
+	                pointer: { size: '6%' },
+	                colorScheme: 'scheme06',
+	                background: { visible: false },
+	                labels: 	{ position: 'near', interval: 20, offset: 10}
+	               
+	            });
+
+	            $('#capVolt').jqxLinearGauge({
+	                orientation: 'horizontal',
+	                ticksMajor: majorTicks,
+	                ticksMinor: minorTicks,
+	                ticksPosition: 'far',
+	                max: 200,
+	                min: 0,
+	                pointer: { size: '6%' },
+	                colorScheme: 'scheme02',
+	                background: { visible: false },
+	                labels: 	{ position: 'far', interval: 20},
+	                height: 200,
+	                width: 300
+	            });
+
+	            $('#packVolt').jqxLinearGauge({
+	                orientation: 'horizontal',
+	                ticksMajor: majorTicks,
+	                ticksMinor: minorTicks,
+	                ticksPosition: 'far',
+	                max: 150,
+	                min: 0,
+	                pointer: { size: '6%' },
+	                colorScheme: 'scheme02',
+	                background: { visible: false },
+	                labels: 	{ position: 'far', interval: 20},
+	                height: 200,
+	                width: 300
+	            });
+
+	            $('#ksi').jqxLinearGauge({
+	                orientation: 'horizontal',
+	                ticksMajor: { size: '10%', interval: 2 },
+	                ticksMinor: { size: '5%', interval: 0.5, style: { 'stroke-width': 1, stroke: '#ffffff'} },
+	                ticksPosition: 'far',
+	                max: 13,
+	                min: 0,
+	                pointer: { size: '6%' },
+	                colorScheme: 'scheme02',
+	                background: { visible: false },
+	                labels: 	{ position: 'far', interval: 2},
+	                height: 200,
+	                width: 300
+	            });
+
+	            $('#bargauge').jqxBarGauge({
+	                colorScheme: "scheme01", 
+	                width: 400, 
+	                height: 400,
+                	values: [75, 115, 130, 137, 100], 
+                	max: 150, 
+                	tooltip: {visible: true, formatFunction: 
+                		function (value, index)
+	                    {
+	                        var realVal = parseInt(value);
+	                        if (index == 0) {
+	                        	return ('Controller Temperature:' + realVal);	
+	                        } else if (index == 1){
+	                        	return ('Motor Temperature:' + realVal);
+	                        } else {
+	                        	return ('Average Battery Temperature:' + realVal);
+	                        }
+	                    },
+                	}
+	            });
+
+	            $('#contCurr').jqxLinearGauge('value', 70);
+            	$('#packCurr').jqxLinearGauge('value', 60);
+            	$('#packVolt').jqxLinearGauge('value', 50);
+            	$('#soc').jqxLinearGauge('value', 100);
+            	$('#kwh').jqxLinearGauge('value', 50);
+            	$('#ksi').jqxLinearGauge('value', 12.1);
+	        	$('#speed').jqxGauge('value', 50);
+		        $('#RPM').jqxGauge('value', 1005);
+
+		        $("#fault0").jqxExpander({ 
+		        	width: '350px',
+		        	expanded: false,
+		        	disabled: true
+		        });
+
+		        $("#fault1").jqxExpander({ 
+		        	width: '350px',
+		        	expanded: false,
+		        	disabled: true
+		        });
+
+		        $("#fault2").jqxExpander({ 
+		        	width: '350px',
+		        	expanded: false,
+		        	disabled: true
+		        });
+
+		        $("#fault3").jqxExpander({ 
+		        	width: '350px',
+		        	expanded: false,
+		        	disabled: true
+		        });
+
+		        $("#fault4").jqxExpander({ 
+		        	width: '350px',
+		        	expanded: false,
+		        	disabled: true
+		        });
+
+		        $("#fault5").jqxExpander({ 
+		        	width: '350px',
+		        	expanded: false,
+		        	disabled: true
+		        });
+
+		        $("#fault6").jqxExpander({ 
+		        	width: '350px',
+		        	expanded: false,
+		        	disabled: true
+		        });
+
+			});
+
+		</script>
+		<div id="container">
+	        <div id="speed"></div>
+	        <div id="RPM"></div>
+		    <div id="contCurr"></div>		       	
+		    <div id="packCurr"></div>
+	        <div id='bargauge'></div>
+	        <div id='accel'></div>
+	        <div id="kwh"></div>
+	        <div id="capVolt"></div>
+	        <div id="ksi"></div>
+	        <div id="packVolt"></div>
+	        <div id="soc"></div>
+	        <div id="faults" style="float: left;">
+		        <div id='fault0'>
+		            <div id="f0title">Fault 0</div>
+		            <div>
+		                <ul id="f0list">
+		                </ul>
+		            </div>
+		        </div>
+		        <div id='fault1'>
+		            <div id="f1title">Fault 1</div>
+		            <div>
+		                <ul id="f1list">
+		                </ul>
+		            </div>
+		        </div>
+		        <div id='fault2'>
+		            <div id="f2title">Fault 2</div>
+		            <div>
+		                <ul id="f2list">
+		                </ul>
+		            </div>
+		        </div>
+		        <div id='fault3'>
+		            <div id="f3title">Fault 3</div>
+		            <div>
+		                <ul id="f3list">
+		                </ul>
+		            </div>
+		        </div>
+		        <div id='fault4'>
+		            <div id="f4title">Fault 4</div>
+		            <div>
+		                <ul id="f4list">
+		                </ul>
+		            </div>
+		        </div>
+		        <div id='fault5'>
+		            <div id="f5title">Fault 5</div>
+		            <div>
+		                <ul id="f5list">
+		                </ul>
+		            </div>
+		        </div>
+		        <div id='fault6'>
+		            <div id="f6title">Fault 6</div>
+		            <div>
+		                <ul id="f6list">
+		                </ul>
+		            </div>
+		        </div>
+		    </div>
+		    <p id="cCurr">Controller Current</p>
+		    <p id="bCurr">Pack Current</p>
+		    <p id="kw">KW Usage</p>
+		    <p id="pVolt">Pack Voltage</p>
+		    <p id="cpV">Capacitor Voltage</p>
+		    <p id="kV">KSI Voltage</p>
+		    <p id="sc">SoC</p>
+		    <p id="status">System Offline.</p>
+		</div>
+
+	</BODY>
+</HTML>
