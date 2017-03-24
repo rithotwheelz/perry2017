@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <HTML>
-	<link rel="stylesheet" type="text/css" href="test.css">
-	<link rel="stylesheet" href=".\jqwidgets-ver4.5.0\jqwidgets\styles\jqx.base.css" type="text/css" />
-
+	<head>
+		<title>Perry Dashboard</title>
+		<link rel="stylesheet" type="text/css" href="test.css">
+		<link rel="stylesheet" href=".\jqwidgets-ver4.5.0\jqwidgets\styles\jqx.base.css" type="text/css" />
+	</head>
 
 	<BODY>
 	<script src="..\Documents\perry\static\jquery-3.1.1.min.js"></script>
@@ -18,24 +20,32 @@
     <script type="text/javascript" src=".\jqwidgets-ver4.5.0\jqwidgets\jqxbargauge.js"></script>
 		
 		<script type="text/javascript">
+			var oldStatus = 2;
+			var newStatus = 1;
+
 			$(document).ready(function () {
 		        $('#speed').jqxGauge({
 		            ranges: [{ startValue: 0, endValue: 40, style: { fill: '#4cb848', stroke: '#4cb848' }, startDistance: 0, endDistance: 0, endWidth: 13, startWidth: 13},
 		                { startValue: 40, endValue: 60, style: { fill: '#fad00b', stroke: '#fad00b' }, startDistance: 0, endDistance: 0, endWidth: 13, startWidth: 13},
 		                { startValue: 60, endValue: 80, style: { fill: '#e53d37', stroke: '#e53d37' }, startDistance: 0, endDistance: 0, endWidth: 13, startWidth: 13}],
-		                cap: { size: '5%', style: { fill: '#2e79bb', stroke: '#2e79bb'} },
-		                border: { style: { fill: '#f957d9', stroke: '#7b8384', 'stroke-width': 1 } },
-		                ticksMinor: { interval: 2.5, size: '5%' },
-		                ticksMajor: { interval: 10, size: '10%' },       
-		                labels: { position: 'outside', interval: 10 },
-		                pointer: { style: { fill: '#2e79bb' }, width: 5 },
-		                animationDuration: 500,
-		                caption: { offset: [0, -25], value: 'MPH', position: 'bottom' },
-		                min: 0,
-		                max: 80,
-		                style: { fill: '#b2adb1', stroke: '#d608ad' },
-		                height: 275
+	                cap: { size: '5%', style: { fill: '#2e79bb', stroke: '#2e79bb'} },
+	                border: { style: { fill: '#f957d9', stroke: '#7b8384', 'stroke-width': 1 } },
+	                ticksMinor: { interval: 2.5, size: '5%' },
+	                ticksMajor: { interval: 10, size: '10%' },       
+	                labels: { position: 'outside', interval: 10 },
+	                pointer: { style: { fill: '#2e79bb' }, width: 5 },
+	                animationDuration: 500,
+	                caption: { offset: [0, -25], value: 'MPH', position: 'bottom' },
+	                min: 0,
+	                max: 80,
+	                style: { fill: '#b2adb1', stroke: '#d608ad' },
+	                height: 275,
+	                value: 0
 		        });
+
+		        $('#speed').on('valueChanging', function (e) {
+                	$('#speedVal').text(Math.round(e.args.value) + ' mph');
+            	});
 
 		        $('#RPM').jqxGauge({
 	            	ranges: [{ startValue: 0, endValue: 5, style: { fill: '#4cb848', stroke: '#4cb848' }, startDistance: 0, endDistance: 0, endWidth: 13, startWidth: 13},
@@ -52,8 +62,13 @@
 	                min: 0,
 	                max: 8,
 	                style: { fill: '#b2adb1', stroke: '#d608ad' },
-	                height: 275
+	                height: 275, 
+	                value: 0
 	        	});
+
+	        	$('#RPM').on('valueChanging', function (e) {
+                	$('#RPMVal').text(Math.round(e.args.value) + ' rpm');
+            	});
 
 	        	$('#accel').jqxGauge({
 	            	ranges: [{ startValue: 0, endValue: 5, style: { fill: '#4cb848', stroke: '#4cb848' }, startDistance: 0, endDistance: 0, endWidth: 13, startWidth: 13},
@@ -61,33 +76,39 @@
 	                { startValue: 7, endValue: 8, style: { fill: '#e53d37', stroke: '#e53d37' }, startDistance: 0, endDistance: 0, endWidth: 13, startWidth: 13}],
 	                cap: { size: '5%', style: { fill: '#2e79bb', stroke: '#2e79bb'} },
 	                border: { style: { fill: '#f957d9', stroke: '#7b8384', 'stroke-width': 0.5 } },
-	                ticksMinor: { interval: 0.25, size: '5%' },
-	                ticksMajor: { interval: 1, size: '10%' },       
+	                ticksMinor: { interval: 0.5, size: '5%' },
+	                ticksMajor: { interval: 2, size: '10%' },       
 	                labels: { position: 'outside', interval: 1 },
 	                pointer: { style: { fill: '#2e79bb' }, width: 5 },
 	                animationDuration: 500,
 	                caption: { offset: [0, -25], value: 'm/s2', position: 'bottom' },
 	                min: 0,
-	                max: 8,
+	                max: 10,
 	                style: { fill: '#b2adb1', stroke: '#d608ad' },
-	                height: 200
+	                height: 200,
+	                value: 0
 	        	});
 
-	        	var majorTicks = { size: '10%', interval: 20 },
-                minorTicks = { size: '5%', interval: 5, style: { 'stroke-width': 1, stroke: '#ffffff'} }
+	        	$('#accel').on('valueChanging', function (e) {
+                	$('#accelVal').text(Math.round(e.args.value) + ' g');
+            	});
+
+	        	var majorTicks = { size: '10%', interval: 50 },
+                minorTicks = { size: '5%', interval: 10, style: { 'stroke-width': 1, stroke: '#ffffff'} }
 
 	            $('#contCurr').jqxLinearGauge({
 	                orientation: 'vertical',
 	                ticksMajor: majorTicks,
 	                ticksMinor: minorTicks,
 	                ticksPosition: 'near',
-	                max: 200,
+	                max: 500,
 	                min: 0,
 	                width: 200,
+	                value: 0,
 	                pointer: { size: '6%' },
 	                colorScheme: 'scheme03',
 	                background: { visible: false },
-	                labels: 	{ position: 'near', interval: 20, offset: 10}
+	                labels: 	{ position: 'near', interval: 50, offset: 10}
 	               
 	            });
 
@@ -96,13 +117,14 @@
 	                ticksMajor: majorTicks,
 	                ticksMinor: minorTicks,
 	                ticksPosition: 'near',
-	                max: 200,
+	                max: 500,
 	                min: 0,
 	                width: 200,
+	                value: 0,
 	                pointer: { size: '6%' },
 	                colorScheme: 'scheme02',
 	                background: { visible: false },
-	                labels: 	{ position: 'near', interval: 20, offset: 10}
+	                labels: 	{ position: 'near', interval: 50, offset: 10}
 	               
 	            });
 
@@ -114,6 +136,7 @@
 	                max: 200,
 	                min: 0,
 	                width: 200,
+	                value: 0,
 	                pointer: { size: '6%' },
 	                colorScheme: 'scheme02',
 	                background: { visible: false },
@@ -123,12 +146,13 @@
 
 	            $('#soc').jqxLinearGauge({
 	                orientation: 'vertical',
-	                ticksMajor: majorTicks,
-	                ticksMinor: minorTicks,
+	                ticksMajor: { size: '10%', interval: 20 },
+	                ticksMinor: { size: '5%', interval: 5, style: { 'stroke-width': 1, stroke: '#ffffff'} },
 	                ticksPosition: 'near',
 	                max: 100,
 	                min: 0,
 	                width: 275,
+	                value: 0,
 	                pointer: { size: '6%' },
 	                colorScheme: 'scheme06',
 	                background: { visible: false },
@@ -138,11 +162,12 @@
 
 	            $('#capVolt').jqxLinearGauge({
 	                orientation: 'horizontal',
-	                ticksMajor: majorTicks,
-	                ticksMinor: minorTicks,
+	                ticksMajor: { size: '10%', interval: 20 },
+	                ticksMinor: { size: '5%', interval: 5, style: { 'stroke-width': 1, stroke: '#ffffff'} },
 	                ticksPosition: 'far',
-	                max: 200,
+	                max: 165,
 	                min: 0,
+	                value: 2,
 	                pointer: { size: '6%' },
 	                colorScheme: 'scheme02',
 	                background: { visible: false },
@@ -153,11 +178,12 @@
 
 	            $('#packVolt').jqxLinearGauge({
 	                orientation: 'horizontal',
-	                ticksMajor: majorTicks,
-	                ticksMinor: minorTicks,
+	                ticksMajor: { size: '10%', interval: 20 },
+	                ticksMinor: { size: '5%', interval: 5, style: { 'stroke-width': 1, stroke: '#ffffff'} },
 	                ticksPosition: 'far',
-	                max: 150,
+	                max: 165,
 	                min: 0,
+	                value: 0,
 	                pointer: { size: '6%' },
 	                colorScheme: 'scheme02',
 	                background: { visible: false },
@@ -173,6 +199,7 @@
 	                ticksPosition: 'far',
 	                max: 13,
 	                min: 0,
+	                value: 12,
 	                pointer: { size: '6%' },
 	                colorScheme: 'scheme02',
 	                background: { visible: false },
@@ -185,31 +212,26 @@
 	                colorScheme: "scheme01", 
 	                width: 400, 
 	                height: 400,
-                	values: [75, 115, 130, 137, 100], 
+                	values: [0, 0, 0, 0, 0], 
                 	max: 150, 
                 	tooltip: {visible: true, formatFunction: 
                 		function (value, index)
 	                    {
 	                        var realVal = parseInt(value);
 	                        if (index == 0) {
-	                        	return ('Controller Temperature:' + realVal);	
+	                        	return ("Controller Temperature: " + realVal + " °F");	
 	                        } else if (index == 1){
-	                        	return ('Motor Temperature:' + realVal);
+	                        	return ("Motor Temperature: " + realVal + " °F");
+	                        } else if (index == 2){
+	                        	return ("Low Battery Temperature: " + realVal + " °F");
+	                        } else if (index == 3){
+	                        	return ("Average Battery Temperature: " + realVal + " °F");
 	                        } else {
-	                        	return ('Average Battery Temperature:' + realVal);
+	                        	return ("High Battery Temperature: " + realVal + " °F");
 	                        }
 	                    },
                 	}
 	            });
-
-	            $('#contCurr').jqxLinearGauge('value', 70);
-            	$('#packCurr').jqxLinearGauge('value', 60);
-            	$('#packVolt').jqxLinearGauge('value', 50);
-            	$('#soc').jqxLinearGauge('value', 100);
-            	$('#kwh').jqxLinearGauge('value', 50);
-            	$('#ksi').jqxLinearGauge('value', 12.1);
-	        	$('#speed').jqxGauge('value', 50);
-		        $('#RPM').jqxGauge('value', 1005);
 
 		        $("#fault0").jqxExpander({ 
 		        	width: '350px',
@@ -254,6 +276,20 @@
 		        });
 
 			});
+
+			$( document ).ready(function update_values(){
+		        $.getJSON("/_thing", function(data) {
+		        	$('#capVolt').jqxLinearGauge('value', 2);
+	            	$('#contCurr').jqxLinearGauge('value', 70);
+	            	$('#packCurr').jqxLinearGauge('value', 60);
+	            	$('#packVolt').jqxLinearGauge('value', 50);
+	            	$('#soc').jqxLinearGauge('value', 100);
+	            	$('#kwh').jqxLinearGauge('value', 50);
+	            	$('#ksi').jqxLinearGauge('value', 12.1);
+		        	$('#speed').jqxGauge('value', data.speed);
+			        $('#RPM').jqxGauge('value', data.RPM);
+		        });
+		    });
 
 		</script>
 		<div id="container">
@@ -327,6 +363,9 @@
 		    <p id="kV">KSI Voltage</p>
 		    <p id="sc">SoC</p>
 		    <p id="status">System Offline.</p>
+		    <div id="speedVal"></div>
+		    <div id="RPMVal"></div>
+		    <div id="accelVal"></div>
 		</div>
 
 	</BODY>
