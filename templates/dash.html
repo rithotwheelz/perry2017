@@ -2,22 +2,22 @@
 <HTML>
 	<head>
 		<title>Perry Dashboard</title>
-		<link rel="stylesheet" type="text/css" href="test.css">
-		<link rel="stylesheet" href=".\jqwidgets-ver4.5.0\jqwidgets\styles\jqx.base.css" type="text/css" />
+		<link rel="stylesheet" type="text/css" href="..\static\dash.css">
+		<link rel="stylesheet" href="..\static\jqwidgets-ver4.5.0\jqwidgets\styles\jqx.base.css" type="text/css" />
 	</head>
 
 	<BODY>
-	<script src="..\Documents\perry\static\jquery-3.1.1.min.js"></script>
-	<script type="text/javascript" src=".\jqwidgets-ver4.5.0\scripts\demos.js"></script>
-    <script type="text/javascript" src=".\jqwidgets-ver4.5.0\jqwidgets\jqxcore.js"></script>
-    <script type="text/javascript" src=".\jqwidgets-ver4.5.0\jqwidgets\jqxdata.js"></script>
-    <script type="text/javascript" src=".\jqwidgets-ver4.5.0\jqwidgets\jqxdraw.js"></script>
-    <script type="text/javascript" src=".\jqwidgets-ver4.5.0\jqwidgets\jqxgauge.js"></script>
-    <script type="text/javascript" src=".\jqwidgets-ver4.5.0\jqwidgets\jqxbuttons.js"></script>
-    <script type="text/javascript" src=".\jqwidgets-ver4.5.0\jqwidgets\jqxcheckbox.js"></script>
-    <script type="text/javascript" src=".\jqwidgets-ver4.5.0\jqwidgets\jqxradiobutton.js"></script>
-    <script type="text/javascript" src=".\jqwidgets-ver4.5.0\jqwidgets\jqxexpander.js"></script>
-    <script type="text/javascript" src=".\jqwidgets-ver4.5.0\jqwidgets\jqxbargauge.js"></script>
+	<script src="..\static\jquery-3.1.1.min.js"></script>
+	<script type="text/javascript" src="..\static\jqwidgets-ver4.5.0\scripts\demos.js"></script>
+    <script type="text/javascript" src="..\static\jqwidgets-ver4.5.0\jqwidgets\jqxcore.js"></script>
+    <script type="text/javascript" src="..\static\jqwidgets-ver4.5.0\jqwidgets\jqxdata.js"></script>
+    <script type="text/javascript" src="..\static\jqwidgets-ver4.5.0\jqwidgets\jqxdraw.js"></script>
+    <script type="text/javascript" src="..\static\jqwidgets-ver4.5.0\jqwidgets\jqxgauge.js"></script>
+    <script type="text/javascript" src="..\static\jqwidgets-ver4.5.0\jqwidgets\jqxbuttons.js"></script>
+    <script type="text/javascript" src="..\static\jqwidgets-ver4.5.0\jqwidgets\jqxcheckbox.js"></script>
+    <script type="text/javascript" src="..\static\jqwidgets-ver4.5.0\jqwidgets\jqxradiobutton.js"></script>
+    <script type="text/javascript" src="..\static\jqwidgets-ver4.5.0\jqwidgets\jqxexpander.js"></script>
+    <script type="text/javascript" src="..\static\jqwidgets-ver4.5.0\jqwidgets\jqxbargauge.js"></script>
 		
 		<script type="text/javascript">
 			var oldStatus = 2;
@@ -167,7 +167,7 @@
 	                ticksPosition: 'far',
 	                max: 165,
 	                min: 0,
-	                value: 2,
+	                value: 0,
 	                pointer: { size: '6%' },
 	                colorScheme: 'scheme02',
 	                background: { visible: false },
@@ -199,7 +199,7 @@
 	                ticksPosition: 'far',
 	                max: 13,
 	                min: 0,
-	                value: 12,
+	                value: 0,
 	                pointer: { size: '6%' },
 	                colorScheme: 'scheme02',
 	                background: { visible: false },
@@ -213,21 +213,21 @@
 	                width: 400, 
 	                height: 400,
                 	values: [0, 0, 0, 0, 0], 
-                	max: 150, 
+                	max: 500, 
                 	tooltip: {visible: true, formatFunction: 
                 		function (value, index)
 	                    {
 	                        var realVal = parseInt(value);
 	                        if (index == 0) {
-	                        	return ("Controller Temperature: " + realVal + " °F");	
+	                        	return ("Low Battery Temperature: " + realVal + " °F");	
 	                        } else if (index == 1){
-	                        	return ("Motor Temperature: " + realVal + " °F");
+	                        	return ("Avg Battery Temperature: " + realVal + " °F");
 	                        } else if (index == 2){
-	                        	return ("Low Battery Temperature: " + realVal + " °F");
-	                        } else if (index == 3){
-	                        	return ("Average Battery Temperature: " + realVal + " °F");
-	                        } else {
 	                        	return ("High Battery Temperature: " + realVal + " °F");
+	                        } else if (index == 3){
+	                        	return ("Controller Temperature: " + realVal + " °F");
+	                        } else {
+	                        	return ("Motor Temperature: " + realVal + " °F");
 	                        }
 	                    },
                 	}
@@ -279,16 +279,32 @@
 
 			$( document ).ready(function update_values(){
 		        $.getJSON("/_thing", function(data) {
-		        	$('#capVolt').jqxLinearGauge('value', 2);
-	            	$('#contCurr').jqxLinearGauge('value', 70);
-	            	$('#packCurr').jqxLinearGauge('value', 60);
-	            	$('#packVolt').jqxLinearGauge('value', 50);
-	            	$('#soc').jqxLinearGauge('value', 100);
+		        	$('#capVolt').jqxLinearGauge('value', data.capVolt);
+	            	$('#contCurr').jqxLinearGauge('value', data.contCurr);
+
+	            	if (data.packCurr > 1000){
+	            		$('#packCurr').jqxLinearGauge('value', 0);
+	            	}else{
+	            		$('#packCurr').jqxLinearGauge('value', data.packCurr);
+	            	}
+	            	$('#packVolt').jqxLinearGauge('value', data.packVolt);
+	            	$('#soc').jqxLinearGauge('value', data.soc);
 	            	$('#kwh').jqxLinearGauge('value', 50);
-	            	$('#ksi').jqxLinearGauge('value', 12.1);
+	            	$('#ksi').jqxLinearGauge('value', data.ksi);
 		        	$('#speed').jqxGauge('value', data.speed);
 			        $('#RPM').jqxGauge('value', data.RPM);
+
+			        $('#bargauge').jqxBarGauge('values', [data.lTemp, data.aTemp, data.hTemp, data.cTemp, data.motorTemp]);
+
+			        if (newStatus == oldStatus){
+	                	$("#systemOn").text("System Offline..")
+	                }else{
+	                	$("#systemOn").text("System Online..")
+	                }
+	                oldStatus = newStatus;
 		        });
+
+		        setTimeout(arguments.callee, 2000);
 		    });
 
 		</script>
