@@ -2,7 +2,7 @@
 <HTML>
 	<head>
 		<title>Perry Dashboard</title>
-		<link rel="stylesheet" type="text/css" href="..\static\dash.css">
+		<link rel="stylesheet" type="text/css" href="..\static\test.css">
 		<link rel="stylesheet" href="..\static\jqwidgets-ver4.5.0\jqwidgets\styles\jqx.base.css" type="text/css" />
 	</head>
 
@@ -18,6 +18,7 @@
     <script type="text/javascript" src="..\static\jqwidgets-ver4.5.0\jqwidgets\jqxradiobutton.js"></script>
     <script type="text/javascript" src="..\static\jqwidgets-ver4.5.0\jqwidgets\jqxexpander.js"></script>
     <script type="text/javascript" src="..\static\jqwidgets-ver4.5.0\jqwidgets\jqxbargauge.js"></script>
+    <script type="text/javascript" src="..\static\jqwidgets-ver4.5.0\jqwidgets\jqxchart.core.js"></script>
 		
 		<script type="text/javascript">
 			var oldStatus = 2;
@@ -273,7 +274,76 @@
 		        	width: '350px',
 		        	expanded: false,
 		        	disabled: true
-		        });
+		        });  
+
+		        var data = [];
+            // var max = 800;
+            // var timestamp = new Date();
+            // for (var i = 0; i < 30; i++) {
+            //     timestamp.setMilliseconds(0);
+            //     // timestamp.setSeconds(timestamp.getSeconds() - 1);
+            //     timestamp.setSeconds(timestamp.getSeconds() - 1);
+            //     timestamp.setMinutes(timestamp.getMinutes() - 1);
+            //     data.push({ timestamp: new Date(timestamp.valueOf()), value: Math.max(100, (Math.random() * 1000) % max) });
+            // }
+            // data = data.reverse();      
+
+		        var settings = {
+	                title: "Kilowatt Hours usage",
+	                description: " ",
+	                enableAnimations: false,
+	                animationDuration: 1000,
+	                enableAxisTextAnimation: true,
+	                showLegend: false,
+	                padding: { left: 5, top: 5, right: 5, bottom: 5 },
+	                titlePadding: { left: 0, top: 0, right: 0, bottom: 10 },
+	                source: data,
+	                xAxis:
+	                {
+	                    dataField: 'timestamp',
+	                    type: 'date',
+	                    baseUnit: 'second',
+	                    unitInterval: 30,
+	                    formatFunction: function (value) {
+	                        return $.jqx.dataFormat.formatdate(value, "hh:mm:ss", 'en-us');
+	                    },
+	                    gridLines: { step: 7 },
+	                    valuesOnTicks: true,
+	                    labels: { angle: -45, offset: { x: -17, y: 0} }
+	                },
+	                colorScheme: 'scheme03',
+	                columnSeriesOverlap: 'true',
+	                seriesGroups:
+	                    [
+	                        {
+	                            type: 'splinearea',
+	                            columnsGapPercent: 100,
+	                            alignEndPointsWithIntervals: true,
+	                            valueAxis:
+	                            {
+	                                minValue: 0,
+	                                maxValue: 1000,
+	                                title: { text: 'Index Value' }
+	                            },
+	                            series: [
+	                                    { dataField: 'value', displayText: 'value', opacity: 1, lineWidth: 2, symbolType: 'circle', fillColorSymbolSelected: 'white', symbolSize: 4 }
+	                                ]
+	                        }
+	                    ]
+	            };
+	            // create the chart
+	            $('#chartContainer').jqxChart(settings);
+	            // auto update timer
+            var ttimer = setInterval(function () {
+                var max = 800;
+                if (data.length >= 60)
+                    data.splice(0, 1);
+                var timestamp = new Date();
+                timestamp.setSeconds(timestamp.getSeconds() - 1);
+                timestamp.setMilliseconds(0);
+                data.push({ timestamp: timestamp, value: Math.max(100, (Math.random() * 1000) % max) });
+                $('#chartContainer').jqxChart('update');
+            }, 2000);
 
 			});
 
@@ -294,14 +364,373 @@
 		        	$('#speed').jqxGauge('value', data.speed);
 			        $('#RPM').jqxGauge('value', data.RPM);
 
+			        var kwNum = 0;
+			        $('#kwh').jqxLinearGauge('value', kwNum);
+
 			        $('#bargauge').jqxBarGauge('values', [data.lTemp, data.aTemp, data.hTemp, data.cTemp, data.motorTemp]);
 
 			        if (newStatus == oldStatus){
-	                	$("#systemOn").text("System Offline..")
+	                	$("#status").text("System Offline..")
+	                	document.querySelector("#status").style.color = "red";
 	                }else{
-	                	$("#systemOn").text("System Online..")
+	                	$("#status").text("System Online..")
+	                	document.querySelector("#status").style.color = "green";
 	                }
 	                oldStatus = newStatus;
+
+	                // Need to clear all old faults first
+                	for (var j = 0; j < clength; j++) {
+                		var num = j.toString();
+                		$("#f".concat(num,"title")).text("...");
+                		$("#fault".concat(num)).jqxExpander('disabled', true);
+                	};
+
+	                var clength = data.contFaults.length;
+
+	                if (clength > 0) {
+	                	for (var i = 0; i < clength; i++) {
+	                		if (data.contFaults[i] != 0){
+	                			var f = 0;
+	                			var header = $("#fault".concat(f.toString())).jqxExpander('getHeaderContent'); 
+
+	                			//make sure only empty ones are written to
+	                			while (header != "..."){
+		                			f++;
+
+		                			if (f > 7){
+		                				alert("FAULT OVERLOAD!!!")
+		                				console.log("Controller Faults: " + data.bmsFaults)
+		                			}
+
+		                			header = $("#fault".concat(f.toString())).jqxExpander('getHeaderContent'); 
+		                		}
+
+		                		var fstr = f.toString();
+	                			$("#fault".concat(fstr)).jqxExpander('disabled', false);
+
+	                			$("#f".concat(fstr, "title")).text(data.contFaults[i]);
+
+	                			switch(data.contFaults[i]){
+	                				case("Main Contactor Welded"):
+	                					$("#f".concat(fstr, "list")).append("Possible causes: <br><li>Main contactor tips are welded closed.</li> <li>Motor phase U or V is disconnected/open.</li> <li>An alternate voltage path (such as an external precharge resistor) is providing a current to the capacitor bank (B+ connection terminal).</li> <br> Recycle KSI to clear fault");
+	                					break;
+
+	                				case("Main Contactor Did Not Close"):
+	                					$("#f".concat(fstr, "list")).append("Controller Fault");
+	                					break;
+
+	                				case("Pot Low Overcurrent"):
+	                					$("#f".concat(fstr, "list")).append("Controller Fault");
+	                					break;
+
+	                				case("Throttle Wiper Low"):
+	                					$("#f".concat(fstr, "list")).append("Controller Fault");
+	                					break;
+
+	                				case("Throttle Wiper High"):
+	                					$("#f".concat(fstr, "list")).append("Controller Fault");
+	                					break;
+
+	                				case("Pot2 Wiper Low"):
+	                					$("#f".concat(fstr, "list")).append("Controller Fault");
+	                					break;
+
+	                				case("Pot2 Wiper High"):
+	                					$("#f".concat(fstr, "list")).append("Controller Fault");
+	                					break;
+
+	                				case("EEPROM Failure"):
+	                					$("#f".concat(fstr, "list")).append("Controller Fault");
+	                					break;
+
+	                				case("HPD/Sequencing Fault"):
+	                					$("#f".concat(fstr, "list")).append("Controller Fault");
+	                					break;
+
+	                				case("Severe B+ Undervoltage"):
+	                					$("#f".concat(fstr, "list")).append("Controller Fault");
+	                					break;
+
+	                				case("Severe B+ Overvoltage"):
+	                					$("#f".concat(fstr, "list")).append("Controller Fault");
+	                					break;
+
+	                				case("B+ Undervoltage Cutback"):
+	                					$("#f".concat(fstr, "list")).append("Controller Fault");
+	                					break;
+
+	                				case("B+ Overvoltage Cutback"):
+	                					$("#f".concat(fstr, "list")).append("Controller Fault");
+	                					break;
+
+	                				case("Not Used"):
+	                					$("#f".concat(fstr, "list")).append("Unknown Controller Fault.");
+	                					break;
+
+									case("Controller Overtemp Cutback"):
+	                					$("#f".concat(fstr, "list")).append("Controller Fault");
+	                					break;
+
+	                				case("Controller Severe Undertemp"):
+	                					$("#f".concat(fstr, "list")).append("Controller Fault");
+	                					break;
+
+	                				case("Controller Severe Overtemp"):
+	                					$("#f".concat(fstr, "list")).append("Controller Fault");
+	                					break;
+
+	                				case("Coill Driver Open/Short"):
+	                					$("#f".concat(fstr, "list")).append("Controller Fault");
+	                					break;
+
+	                				case("Coil2 Driver Open/Short"):
+	                					$("#f".concat(fstr, "list")).append("Controller Fault");
+	                					break;
+
+	                				case("Coil3 Driver Open/Short"):
+	                					$("#f".concat(fstr, "list")).append("Controller Fault");
+	                					break;
+
+	                				case("Coil4 Driver Open/Short"):
+	                					$("#f".concat(fstr, "list")).append("Controller Fault");
+	                					break;
+
+	                				case("PD Open/Short"):
+	                					$("#f".concat(fstr, "list")).append("Controller Fault");
+	                					break;
+
+	                				case("Main Open/Short"):
+	                					$("#f".concat(fstr, "list")).append("Controller Fault");
+	                					break;
+
+	                				case("EMBrake Open/Short"):
+	                					$("#f".concat(fstr, "list")).append("Controller Fault");
+	                					break;
+
+	                				case("Precharge Failed"):
+	                					$("#f".concat(fstr, "list")).append("Controller Fault");
+	                					break;
+
+	                				case("Digital Out 6 Overcurrent"):
+	                					$("#f".concat(fstr, "list")).append("Controller Fault");
+	                					break;
+
+	                				case("Digital Out 7 Overcurrent"):
+	                					$("#f".concat(fstr, "list")).append("Controller Fault");
+	                					break;
+
+	                				case("Controller Overcurrent"):
+	                					$("#f".concat(fstr, "list")).append("Controller Fault");
+	                					break;
+
+	                				case("Current Sensor Fault"):
+	                					$("#f".concat(fstr, "list")).append("Controller Fault");
+	                					break;
+
+	                				case("Motor Temp Hot Cutback"):
+	                					$("#f".concat(fstr, "list")).append("Controller Fault");
+	                					break;
+
+	                				case("Parameter Change Fault"):
+	                					$("#f".concat(fstr, "list")).append("Controller Fault");
+	                					break;
+
+	                				case("Motor Open"):
+	                					$("#f".concat(fstr, "list")).append("Controller Fault");
+	                					break;
+
+	                				case("External Supply Out of Range"):
+	                					$("#f".concat(fstr, "list")).append("Controller Fault");
+	                					break;
+
+	                				case("Motor Temp Sensor Fault"):
+	                					$("#f".concat(fstr, "list")).append("Controller Fault");
+	                					break;
+
+	                				case("VCL Run Time Error"):
+	                					$("#f".concat(fstr, "list")).append("Controller Fault");
+	                					break;
+
+	                				case("+5V Supply Failure"):
+	                					$("#f".concat(fstr, "list")).append("Controller Fault");
+	                					break;
+
+	                				case("OS General"):
+	                					$("#f".concat(fstr, "list")).append("Controller Fault");
+	                					break;
+
+	                				case("PDO Timeout"):
+	                					$("#f".concat(fstr, "list")).append("Controller Fault");
+	                					break;
+
+	                				case("Encoder Fault"):
+	                					$("#f".concat(fstr, "list")).append("Controller Fault");
+	                					break;
+
+	                				case("Stall Detected"):
+	                					$("#f".concat(fstr, "list")).append("Controller Fault");
+	                					break;
+
+	                				case("Motor Type Fault"):
+	                					$("#f".concat(fstr, "list")).append("Controller Fault");
+	                					break;
+
+	                				case("Supervisor Fault"):
+	                					$("#f".concat(fstr, "list")).append("Controller Fault");
+	                					break;
+
+	                				case("Motor Characterization Fault"):
+	                					$("#f".concat(fstr, "list")).append("Controller Fault");
+	                					break;
+
+	                				case("VCL/OS Mismatch"):
+	                					$("#f".concat(fstr, "list")).append("Controller Fault");
+	                					break;
+
+	                				case("Encoder LOS (Limited Operating Strategy)"):
+	                					$("#f".concat(fstr, "list")).append("Controller Fault");
+	                					break;
+
+	                				case("Severe KSI Undervoltage"):
+	                					$("#f".concat(fstr, "list")).append("Controller Fault");
+	                					break;
+
+	                				case("Severe KSI Overvoltage"):
+	                					$("#f".concat(fstr, "list")).append("Controller Fault");
+	                					break;
+
+	                				case("Insulation Resistance Low"):
+	                					$("#f".concat(fstr, "list")).append("Controller Fault");
+	                					break;
+
+	                				case("Encoder Pulse Count Fault"):
+	                					$("#f".concat(fstr, "list")).append("Controller Fault");
+	                					break;
+
+
+	                				default:
+	                					$("#f".concat(fstr, "list")).append("No information available.");
+	                			}	
+	                		}
+	                	};
+	                }
+
+	                var blength = data.bmsFaults.length;
+
+	                if (blength > 0) {
+	                	for (var i = 0; i < blength; i++) {
+	                		if (data.bmsFaults[i] != 0){
+	                			var f = 0;
+	                			var header = $("#fault".concat(f.toString())).jqxExpander('getHeaderContent');
+
+	                			//make sure only empty ones are written to
+	                			while (header != "..."){
+		                			f++;
+
+		                			if (f > 7){
+		                				alert("FAULT OVERLOAD!!!")
+		                				console.log("BMS Faults: " + data.bmsFaults)
+		                			}
+
+		                			header = $("#fault".concat(f.toString())).jqxExpander('getHeaderContent'); 
+		                		}
+
+		                		var fstr = f.toString();
+	                			$("#fault".concat(fstr)).jqxExpander('disabled', false);
+
+	                			$("#f".concat(fstr, "title")).text(data.bmsFaults[i]);
+
+	                			switch(data.bmsFaults[i]){
+	                				case("Internal Communication"):
+	                					$("#f".concat(fstr, "list")).append("BMS Fault");
+	                					break;
+
+	                				case("Internal Conversion"):
+	                					$("#f".concat(fstr, "list")).append("BMS Fault");
+	                					break;
+
+	                				case("Weak Cell"):
+	                					$("#f".concat(fstr, "list")).append("BMS Fault");
+	                					break;
+
+	                				case("Low Cell Voltage"):
+	                					$("#f".concat(fstr, "list")).append("BMS Fault");
+	                					break;
+
+	                				case("Open Wiring"):
+	                					$("#f".concat(fstr, "list")).append("BMS Fault");
+	                					break;
+
+	                				case("Current Sensor"):
+	                					$("#f".concat(fstr, "list")).append("BMS Fault");
+	                					break;
+
+	                				case("Pack Voltage Sensor"):
+	                					$("#f".concat(fstr, "list")).append("BMS Fault");
+	                					break;
+
+	                				case("Weak Pack"):
+	                					$("#f".concat(fstr, "list")).append("BMS Fault");
+	                					break;
+
+	                				case("Voltage Redundancy"):
+	                					$("#f".concat(fstr, "list")).append("BMS Fault");
+	                					break;
+
+	                				case("Fan Monitor"):
+	                					$("#f".concat(fstr, "list")).append("BMS Fault");
+	                					break;
+
+	                				case("Thermistor"):
+	                					$("#f".concat(fstr, "list")).append("BMS Fault");
+	                					break;
+
+	                				case("CANBUS Communication"):
+	                					$("#f".concat(fstr, "list")).append("BMS Fault");
+	                					break;
+
+	                				case("Always-On Supply"):
+	                					$("#f".concat(fstr, "list")).append("BMS Fault");
+	                					break;
+
+	                				case("High Voltage Isolation"):
+	                					$("#f".concat(fstr, "list")).append("BMS Fault");
+	                					break;
+
+	                				case("12V Power Supply"):
+	                					$("#f".concat(fstr, "list")).append("BMS Fault");
+	                					break;
+
+	                				case("Charge Limit Enforcement"):
+	                					$("#f".concat(fstr, "list")).append("BMS Fault");
+	                					break;
+
+	                				case("Discharge Limit Enforcement"):
+	                					$("#f".concat(fstr, "list")).append("BMS Fault");
+	                					break;
+
+	                				case("Charger Safety Relay"):
+	                					$("#f".concat(fstr, "list")).append("BMS Fault");
+	                					break;
+
+	                				case("Internal Memory"):
+	                					$("#f".concat(fstr, "list")).append("BMS Fault");
+	                					break;
+
+	                				case("Internal Thermistor"):
+	                					$("#f".concat(fstr, "list")).append("BMS Fault");
+	                					break;
+
+	                				case("Internal Logic"):
+	                					$("#f".concat(fstr, "list")).append("BMS Fault");
+	                					break;
+
+	                				default:
+	                					$("#f".concat(fstr, "list")).append("No information available.");
+	                			}
+	                		}
+	                	};
+	                }
 		        });
 
 		        setTimeout(arguments.callee, 2000);
@@ -322,66 +751,88 @@
 	        <div id="soc"></div>
 	        <div id="faults" style="float: left;">
 		        <div id='fault0'>
-		            <div id="f0title">Fault 0</div>
+		            <div id="f0title">...</div>
 		            <div>
 		                <ul id="f0list">
 		                </ul>
 		            </div>
 		        </div>
 		        <div id='fault1'>
-		            <div id="f1title">Fault 1</div>
+		            <div id="f1title">...</div>
 		            <div>
 		                <ul id="f1list">
 		                </ul>
 		            </div>
 		        </div>
 		        <div id='fault2'>
-		            <div id="f2title">Fault 2</div>
+		            <div id="f2title">...</div>
 		            <div>
 		                <ul id="f2list">
 		                </ul>
 		            </div>
 		        </div>
 		        <div id='fault3'>
-		            <div id="f3title">Fault 3</div>
+		            <div id="f3title">...</div>
 		            <div>
 		                <ul id="f3list">
 		                </ul>
 		            </div>
 		        </div>
 		        <div id='fault4'>
-		            <div id="f4title">Fault 4</div>
+		            <div id="f4title">...</div>
 		            <div>
 		                <ul id="f4list">
 		                </ul>
 		            </div>
 		        </div>
 		        <div id='fault5'>
-		            <div id="f5title">Fault 5</div>
+		            <div id="f5title">...</div>
 		            <div>
 		                <ul id="f5list">
 		                </ul>
 		            </div>
 		        </div>
 		        <div id='fault6'>
-		            <div id="f6title">Fault 6</div>
+		            <div id="f6title">...</div>
 		            <div>
 		                <ul id="f6list">
 		                </ul>
 		            </div>
 		        </div>
 		    </div>
-		    <p id="cCurr">Controller Current</p>
-		    <p id="bCurr">Pack Current</p>
-		    <p id="kw">KW Usage</p>
-		    <p id="pVolt">Pack Voltage</p>
-		    <p id="cpV">Capacitor Voltage</p>
-		    <p id="kV">KSI Voltage</p>
-		    <p id="sc">SoC</p>
-		    <p id="status">System Offline.</p>
+		    <div id="cCurr" class="label">
+		    	Controller Current
+		    	<p id="cCurrNum" class="valLabel"></p>
+		    </div>
+		    <div id="bCurr" class="label">
+		    	Pack Current
+		    	<p id="bCurrNum" class="valLabel"></p>
+		    </div>
+		    <div id="kw" class="label">
+		    	KW Usage
+		    	<p id="kwNum" class="valLabel"></p>
+		    </div>
+		    <div id="pVolt" class="label">
+		    	Pack Voltage
+		    	<p id="pVoltNum" class="valLabel"></p>
+		    </div>
+		    <div id="cpV" class="label">
+		    	Capacitor Voltage
+		    	<p id="cpVNum" class="valLabel"></p>
+		    </div>
+		    <div id="kV" class="label">
+		    	KSI Voltage
+		    	<p id="kVNum" class="valLabel"></p>
+		    </div>
+		    <div id="sc" class="label">
+		    	SoC
+		    	<p id="scNum" class="valLabel"></p>
+		    </div>
 		    <div id="speedVal"></div>
 		    <div id="RPMVal"></div>
 		    <div id="accelVal"></div>
+		    <div id="status">System Offline.</div>
+		    <div id='chartContainer' style="width: 425px; height: 250px;">
 		</div>
 
 	</BODY>
